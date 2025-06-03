@@ -4,6 +4,13 @@ import { ChevronRight, Shield, Zap, Globe, ArrowRight } from 'lucide-react';
 const StableCoinLanding = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [currentFeature, setCurrentFeature] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [showCongrats, setShowCongrats] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: ''
+  });
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -26,6 +33,30 @@ const StableCoinLanding = () => {
     { icon: Zap, text: "Instant Transfers" },
     { icon: Globe, text: "Global Access" }
   ];
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowModal(false);
+    setShowCongrats(true);
+    // Reset form
+    setFormData({ firstName: '', lastName: '', email: '' });
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setFormData({ firstName: '', lastName: '', email: '' });
+  };
+
+  const closeCongrats = () => {
+    setShowCongrats(false);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -59,7 +90,7 @@ const StableCoinLanding = () => {
       </div>
 
       {/* Flying Elements */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 pointer-events-none z-0">
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
@@ -77,7 +108,7 @@ const StableCoinLanding = () => {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
+      <div className="relative z-20 flex flex-col items-center justify-center min-h-screen px-4 text-center">
         
         {/* Logo/Brand */}
         <div className="mb-8 relative">
@@ -136,12 +167,14 @@ const StableCoinLanding = () => {
         </div>
 
         {/* CTA Button */}
-        <button className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white font-semibold text-lg hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl">
-          <span className="relative z-10 flex items-center space-x-2">
+        <button 
+          onClick={() => setShowModal(true)}
+          className="relative px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full text-white font-semibold text-lg hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl cursor-pointer z-30"
+        >
+          <span className="flex items-center space-x-2">
             <span>Get Notified</span>
-            <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <ChevronRight className="w-5 h-5" />
           </span>
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur opacity-50 group-hover:opacity-75 transition-opacity"></div>
         </button>
 
         {/* Bottom Stats */}
@@ -182,6 +215,114 @@ const StableCoinLanding = () => {
           </defs>
         </svg>
       </div>
+
+      {/* Notification Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full border border-slate-700 relative">
+            {/* Close button */}
+            <button 
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Modal Header */}
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-2xl">🚀</span>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Get Early Access</h2>
+              <p className="text-slate-400">Be the first to know when StableCoin launches</p>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              <div>
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105"
+              >
+                Notify Me
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Congratulations Modal */}
+      {showCongrats && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full border border-slate-700 text-center relative">
+            {/* Animated Success Icon */}
+            <div className="w-20 h-20 mx-auto mb-6 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full animate-pulse"></div>
+              <div className="absolute inset-2 bg-slate-900 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Success Message */}
+            <h2 className="text-3xl font-bold text-white mb-4">🎉 You're In!</h2>
+            <p className="text-slate-300 mb-2">Welcome to the StableCoin community!</p>
+            <p className="text-slate-400 mb-6">We'll notify you as soon as we launch. Get ready for the future of stable digital currency.</p>
+            
+            {/* Benefits */}
+            <div className="bg-slate-800/50 rounded-lg p-4 mb-6">
+              <p className="text-sm text-slate-300 mb-2">🎁 Early Access Benefits:</p>
+              <ul className="text-sm text-slate-400 space-y-1">
+                <li>• Priority account setup</li>
+                <li>• Exclusive launch bonuses</li>
+                <li>• Zero fees for first month</li>
+              </ul>
+            </div>
+
+            <button
+              onClick={closeCongrats}
+              className="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg text-white font-semibold hover:from-green-500 hover:to-emerald-500 transition-all duration-300"
+            >
+              Awesome!
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
