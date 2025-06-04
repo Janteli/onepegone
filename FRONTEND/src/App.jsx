@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import emailjs from 'emailjs-com'; // <-- NEW
 import { ChevronRight, Shield, Zap, Globe, ArrowRight } from 'lucide-react';
+
+const SERVICE_ID = 'service_sz9g5lc';
+const TEMPLATE_ID = 'template_gcd5k4v';
+const PUBLIC_KEY = 'vMGkqDDUbESXXDONr';
 
 const StableCoinLanding = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -16,7 +21,6 @@ const StableCoinLanding = () => {
     const handleMouseMove = (e) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
-
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
@@ -35,23 +39,33 @@ const StableCoinLanding = () => {
   ];
 
   const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [e.target.name]: e.target.value
-    });
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowModal(false);
-    setShowCongrats(true);
-    // Reset form
-    setFormData({ firstName: '', lastName: '', email: '' });
+
+    try {
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email
+      }, PUBLIC_KEY);
+
+      setShowModal(false);
+      setShowCongrats(true);
+      setFormData({ firstName: '', lastName: '', email: '' });
+    } catch (error) {
+      alert("Something went wrong. Please try again.");
+      console.error("EmailJS Error:", error);
+    }
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setFormData({ firstName: '', lastName: '', email: '' });
   };
 
   const closeCongrats = () => {
@@ -63,7 +77,7 @@ const StableCoinLanding = () => {
       {/* Animated Background Elements */}
       <div className="absolute inset-0">
         {/* Floating Orbs */}
-        <div 
+        <div
           className="absolute w-96 h-96 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse"
           style={{
             left: `${20 + mousePosition.x * 0.02}%`,
@@ -71,7 +85,7 @@ const StableCoinLanding = () => {
             transform: 'translate(-50%, -50%)',
           }}
         />
-        <div 
+        <div
           className="absolute w-64 h-64 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 rounded-full blur-2xl animate-pulse"
           style={{
             right: `${15 + mousePosition.x * -0.015}%`,
@@ -80,7 +94,7 @@ const StableCoinLanding = () => {
             animationDelay: '1s'
           }}
         />
-        
+
         {/* Grid Pattern */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0" style={{
@@ -217,66 +231,50 @@ const StableCoinLanding = () => {
       </div>
 
       {/* Notification Modal */}
-      {showModal && (
+     {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-900 rounded-2xl p-8 max-w-md w-full border border-slate-700 relative">
-            {/* Close button */}
-            <button 
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+            <button onClick={closeModal} className="absolute top-4 right-4 text-slate-400 hover:text-white">
+              ✕
             </button>
-
-            {/* Modal Header */}
             <div className="text-center mb-6">
               <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🚀</span>
+                🚀
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">Get Early Access</h2>
               <p className="text-slate-400">Be the first to know when StableCoin launches</p>
             </div>
-
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Last Name"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
+              <input
+                type="text"
+                name="firstName"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white"
+              />
+              <input
+                type="text"
+                name="lastName"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white"
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+                className="w-full px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white"
+              />
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105"
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg text-white font-semibold hover:from-blue-500 hover:to-purple-500"
               >
                 Notify Me
               </button>
